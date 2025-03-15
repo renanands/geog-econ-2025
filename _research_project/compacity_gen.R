@@ -5,6 +5,11 @@ library(ggplot2)
 
 set.seed(1)
 
+# ------
+
+# available years: 
+# 1872 1900 1911 1920 1933 1940 1950 1960 1970 1980 1991 2000 2001 2005 2007 
+# 2010 2013 2014 2015 2016 2017 2018 2019 2020 2021 2022
 raw_all_muni <- 
   read_municipality(simplified = FALSE) 
 
