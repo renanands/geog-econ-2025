@@ -20,7 +20,7 @@ all_muni <-
                                        id = "Latin-ASCII") %>% 
            toupper(.))
 
-st_write(all_muni, here::here('data', 'all_muni.shp'))
+# st_write(all_muni, here::here('data', 'all_muni.shp'))
 
 mock_muni <- all_muni %>% filter(name_muni == 'RIO DE JANEIRO' |
                              name_muni == 'NOVA IGUACU' |
