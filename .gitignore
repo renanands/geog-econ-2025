@@ -2,3 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+_research_project/data/all_muni.dbf
+_research_project/data/all_muni.prj
+_research_project/data/all_muni.shp
+_research_project/data/all_muni.shx
