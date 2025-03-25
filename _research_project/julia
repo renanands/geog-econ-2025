@@ -93,8 +93,9 @@ results = Vector{Float64}(undef, length(muni_data))
 
 GeoTables.load(muni_data)
 
-print(DataFrame(muni_data))
+print(DataFrame(muni_data)[!,2])
 
+print('b')
 compute_disconnection(muni_data)
 
 GeoInterface.coordinates[(]muni_data)
