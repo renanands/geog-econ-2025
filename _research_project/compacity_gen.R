@@ -78,12 +78,48 @@ compute_disconnection_index <- function(polygon, n_points, n_samples) {
 }
 
 # Set parameters
-n <- 100  # Number of random points per sample
+n <- 10  # Number of random points per sample
 num_samples <- 5  # Number of samples per city
 
 start.time <- Sys.time()
-rj_muni <- # Apply the function to all cities
-  subsample_muni %>%
+va <- # Apply the function to all cities
+  rj_muni %>%
+  rowwise() %>%
+  mutate(disconnection_index = compute_disconnection_index(.$geom, n, num_samples))
+end.time <- Sys.time()
+time.taken <- end.time - start.time
+time.taken
+
+# Set parameters
+n <- 50  # Number of random points per sample
+num_samples <- 5  # Number of samples per city
+start.time <- Sys.time()
+ve <- # Apply the function to all cities
+  rj_muni %>%
+  rowwise() %>%
+  mutate(disconnection_index = compute_disconnection_index(.$geom, n, num_samples))
+end.time <- Sys.time()
+time.taken <- end.time - start.time
+time.taken
+
+# Set parameters
+n <- 10  # Number of random points per sample
+num_samples <- 10  # Number of samples per city
+start.time <- Sys.time()
+vo <- # Apply the function to all cities
+  rj_muni %>%
+  rowwise() %>%
+  mutate(disconnection_index = compute_disconnection_index(.$geom, n, num_samples))
+end.time <- Sys.time()
+time.taken <- end.time - start.time
+time.taken
+
+# Set parameters
+n <- 100  # Number of random points per sample
+num_samples <- 10  # Number of samples per city
+start.time <- Sys.time()
+vu <- # Apply the function to all cities
+  rj_muni %>%
   rowwise() %>%
   mutate(disconnection_index = compute_disconnection_index(.$geom, n, num_samples))
 end.time <- Sys.time()
