@@ -43,14 +43,19 @@ rj_centroids <-
 
 all_muni_grid <-
   all_muni %>%
-  st_make_grid(., cellsize = 0.01) %>%
+  st_make_grid(., cellsize = 0.1) %>%
   st_sf()
 
 all_muni_centroids <-
   all_muni_grid %>%
   st_centroid
 
-# --
+lapply(all_muni, function(x){
+  x %>%
+  st_make_grid(., cellsize = 0.1) %>%
+  st_sf() %>%
+  st_centroid
+})
 
 # -----
 
