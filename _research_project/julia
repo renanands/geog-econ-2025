@@ -1,0 +1,106 @@
+import Pkg; Pkg.add("Shapefile")
+import Pkg; Pkg.add("Distances")
+import Pkg; Pkg.add("GeoInterface")
+import Pkg; Pkg.add("Statistics")
+import Pkg; Pkg.add("Random")
+import Pkg; Pkg.add("DataFrames")
+import Pkg; Pkg.add("GeoTables")
+
+using Shapefile, Distances, GeoInterface, Statistics, Random, DataFrames
+
+# # Initialize RNGs for thread safety
+# const RNGs = [MersenneTwister(i) for i in 1:nthreads()]
+
+function get_bounding_box(coords)
+    # coords: Vector of tuples [(x1,y1), (x2,y2), ...]
+    min_x = minimum(c[1] for c in coords)
+    max_x = maximum(c[1] for c in coords)
+    min_y = minimum(c[2] for c in coords)
+    max_y = maximum(c[2] for c in coords)
+    return (min_x, max_x, min_y, max_y)
+end
+
+function is_point_in_polygon(point::Tuple{Float64,Float64}, coords)
+    (x, y) = point
+    n_vertices = length(coords)
+    inside = false
+
+    for i in 1:n_vertices
+        j = (i == n_vertices) ? 1 : i + 1
+        (xi, yi) = coords[i]
+        (xj, yj) = coords[j]
+
+        # Check if point is on an edge
+        if ((yi > y) != (yj > y)) &&
+            (x < (xj - xi) * (y - yi) / (yj - yi) + xi)
+            inside = !inside
+        end
+    end
+
+    return inside
+end
+
+function rand_in_polygon(rng::AbstractRNG, coords; max_attempts=1000)
+    # Get polygon's axis-aligned bounding box
+    (min_x, max_x, min_y, max_y) = get_bounding_box(coords)
+
+    # Generate random points until one falls inside
+    for _ in 1:max_attempts
+        x = rand(rng) * (max_x - min_x) + min_x
+        y = rand(rng) * (max_y - min_y) + min_y
+
+        if is_point_in_polygon((x, y), coords)
+            return (x, y)
+        end
+    end
+
+    # Fallback to centroid if sampling fails
+    centroid_x = sum(c[1] for c in coords) / length(coords)
+    centroid_y = sum(c[2] for c in coords) / length(coords)
+    return (centroid_x, centroid_y)
+end
+
+function compute_disconnection(polygon, n_points=3, n_samples=2)
+    total = 0.0  # → Accumulator for sum of distances
+    coords = GeoInterface.coordinates(polygon)  # → Extract polygon vertices
+    return(coords)
+    # # Get thread-specific resources
+    # tid = threadid()  # → Current thread ID (1 to nthreads())
+    # rng = RNGs[tid]  # → Thread's dedicated RNG
+    # coords = GeoInterface.coordinates(polygon)
+    #
+    # for _ in 1:n_samples
+    #     # Convert to vector of tuples
+    #     coord_tuples = [(c[1], c[2]) for c in coords]
+    #
+    #     points = [rand_in_polygon(rng, coord_tuples) for _ in 1:n_points]
+    #
+    #     # Compute all pairwise Euclidean distances
+    #     dist_matrix = pairwise(Haversine(), hcat(points...))
+    #
+    #     # Add total distances for this sample
+    #     total += sum(dist_matrix)
+    # end
+    #
+    # # Normalize by samples and point pairs
+    # return total / (n_samples * n_points * (n_points - 1))
+end
+
+
+# Parallel execution
+muni_data = Shapefile.Table("./_research_project/data/all_muni/all_muni.shp") |> Shapefile.shapes
+results = Vector{Float64}(undef, length(muni_data))
+
+GeoTables.load(muni_data)
+
+print(DataFrame(muni_data))
+
+compute_disconnection(muni_data)
+
+GeoInterface.coordinates[(]muni_data)
+
+@threads for i in eachindex(muni_data)
+    results[i] = compute_disconnection(muni_data[i])
+end
+
+raw_all_muni.disconnection_index = results

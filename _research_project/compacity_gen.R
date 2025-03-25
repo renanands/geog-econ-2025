@@ -20,11 +20,37 @@ all_muni <-
                                        id = "Latin-ASCII") %>% 
            toupper(.))
 
+# --
+
 # st_write(all_muni, here::here('data', 'all_muni.shp'))
 
-mock_muni <- all_muni %>% filter(name_muni == 'RIO DE JANEIRO' |
-                             name_muni == 'NOVA IGUACU' |
-                             name_muni == 'SAO GONCALO')
+rj_muni <- 
+  all_muni %>% 
+  filter(abbrev_state == 'RJ')
+
+# --
+
+rj_muni_grid <-
+  rj_muni %>%
+  st_make_grid(., cellsize = 0.01) %>%
+  st_sf()
+
+rj_centroids <-
+  rj_muni_grid %>%
+  st_centroid
+
+# -
+
+all_muni_grid <-
+  all_muni %>%
+  st_make_grid(., cellsize = 0.01) %>%
+  st_sf()
+
+all_muni_centroids <-
+  all_muni_grid %>%
+  st_centroid
+
+# --
 
 # -----
 
@@ -47,52 +73,15 @@ compute_disconnection_index <- function(polygon, n_points, n_samples) {
 }
 
 # Set parameters
-n <- 10  # Number of random points per sample
-num_samples <- 3  # Number of samples per city
+n <- 50  # Number of random points per sample
+num_samples <- 10  # Number of samples per city
 
-# Apply the function to all cities
-mock_muni %>%
+subsample_muni_results <- # Apply the function to all cities
+  subsample_muni %>%
   rowwise() %>%
   mutate(disconnection_index = compute_disconnection_index(.$geom, n, num_samples))
 
 # View results
-print(results)
+print(subsample_muni_results)
 
 # -----
-
-
-sample_gen <-
-  function(x){ # x = all_muni
-    
-    # get 30 batches of 10,000 points for each municipality
-    sampled_points <-
-      lapply(1:2, function(i){
-        st_sample(x, size = c(3, 3), type = "random")
-      })
-    
-    return(sampled_points)
-    
-  }
-
-
-sample_gen(mock_muni)
-
-
-vu <- lapply(1:2, function(i){
-  st_sample(mock_muni, size = c(3, 3), type = "random")
-})
-
-st_distance(vu)
-
-S <- function(x){
-  
-  
-  
-  st_distance(mock_muni) %>% rowSums() %>% sum / n*(n-1)
-}
-
-# ggplot() +
-#   geom_sf(data = mock_muni, fill='gray8', color='gray80') +
-#   geom_sf(data = sampled_points, color='blue')
-
-
