@@ -28,6 +28,18 @@ rj_muni <-
   all_muni %>% 
   filter(abbrev_state == 'RJ')
 
+sp_muni <- 
+  all_muni %>% 
+  filter(abbrev_state == 'SP')
+
+sample_muni <-
+  all_muni %>% 
+  filter(abbrev_state == 'RJ' |
+           abbrev_state == 'BA' |
+           abbrev_state == 'PE' |
+           abbrev_state == 'PA' |
+           abbrev_state == 'SP')
+
 # --
 
 rj_muni_grid <-
@@ -77,56 +89,53 @@ compute_disconnection_index <- function(polygon, n_points, n_samples) {
   return(mean(indices))  # Return the mean across the 30 samples
 }
 
-# Set parameters
-n <- 10  # Number of random points per sample
-num_samples <- 5  # Number of samples per city
-
-start.time <- Sys.time()
-va <- # Apply the function to all cities
-  rj_muni %>%
-  rowwise() %>%
-  mutate(disconnection_index = compute_disconnection_index(.$geom, n, num_samples))
-end.time <- Sys.time()
-time.taken <- end.time - start.time
-time.taken
 
 # Set parameters
 n <- 50  # Number of random points per sample
-num_samples <- 5  # Number of samples per city
+s <- 5  # Number of samples per city
+
+# ------
+
 start.time <- Sys.time()
-ve <- # Apply the function to all cities
+#
+rio_muni_results <- # Apply the function to all cities
   rj_muni %>%
   rowwise() %>%
-  mutate(disconnection_index = compute_disconnection_index(.$geom, n, num_samples))
+  mutate(disconnection_index = compute_disconnection_index(.$geom, n, s))
+#
 end.time <- Sys.time()
 time.taken <- end.time - start.time
 time.taken
+saveRDS(rio_muni_results, here::here('out', 'rio_muni_results.Rds'))
 
-# Set parameters
-n <- 10  # Number of random points per sample
-num_samples <- 10  # Number of samples per city
+
+# ------
+
+
 start.time <- Sys.time()
-vo <- # Apply the function to all cities
-  rj_muni %>%
+#
+sp_muni_results <- # Apply the function to all cities
+  sp_muni %>%
   rowwise() %>%
-  mutate(disconnection_index = compute_disconnection_index(.$geom, n, num_samples))
+  mutate(disconnection_index = compute_disconnection_index(.$geom, n, s))
+#
 end.time <- Sys.time()
 time.taken <- end.time - start.time
 time.taken
+saveRDS(sp_muni_results, here::here('out', 'sp_muni_results.Rds'))
 
-# Set parameters
-n <- 100  # Number of random points per sample
-num_samples <- 10  # Number of samples per city
+
+# ------
 start.time <- Sys.time()
-vu <- # Apply the function to all cities
-  rj_muni %>%
+#
+sample_muni_results <- # Apply the function to all cities
+  sample_muni %>%
   rowwise() %>%
-  mutate(disconnection_index = compute_disconnection_index(.$geom, n, num_samples))
+  mutate(disconnection_index = compute_disconnection_index(.$geom, n, s))
+#
 end.time <- Sys.time()
 time.taken <- end.time - start.time
 time.taken
-
-# View results
-print(subsample_muni_results)
+saveRDS(sample_muni_results, here::here('out', 'sample_muni_results.Rds'))
 
 # -----
