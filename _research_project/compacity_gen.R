@@ -222,16 +222,33 @@ br_s2p5 <-
   mutate(area = as.numeric(st_area(geom))) %>%
   mutate(index_norm = index / sqrt(area/pi) )
 
+saveRDS(br_s2p5, here::here('out', 'br_s2p5.Rds'))
 
-ggplot() +
-  geom_sf(data = br_s2p5, aes(fill = index, color = NA)) +
+br_s2p5_plot_raw <-
+  ggplot() +
+  geom_sf(data = br_s2p5, aes(fill = index), color = NA) +
   scale_fill_gradient(low='navy', high='magenta') +
   ggtitle('Raw index')
 
-ggplot() +
-  geom_sf(data = br_s2p5, aes(fill = index_norm)) +
+ggsave(plot = br_s2p5_plot_raw, here::here('out', 'br_s2p5_plot_raw.png'))
+
+br_s2p5_trimmed <-
+  br_s2p5 %>%
+  filter(index_norm >= quantile(index_norm)[1] &
+           index_norm <= quantile(index_norm)[4])
+
+br_sf <-
+  read_country(simplified = FALSE)
+
+br_s2p5_plot_norm <-
+  ggplot() +
+  theme_minimal() +
+  geom_sf(data = br_sf, fill='gray8', color='gray50') +
+  geom_sf(data = br_s2p5_trimmed, aes(fill = index_norm), color = NA) +
   scale_fill_gradient(low='navy', high='magenta') +
   ggtitle('Normalized index')
+
+ggsave(plot = br_s2p5_plot_norm, here::here('out', 'br_s2p5_plot_norm.png'))
 
 # ------
 
