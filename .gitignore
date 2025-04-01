@@ -1,6 +1,4 @@
 .Rproj.user
-.Rhistory
-.RData
 .Ruserdata
 _research_project/data/all_muni.dbf
 _research_project/data/all_muni.prj
@@ -14,3 +12,4 @@ _research_project/data/all_muni/all_muni.dbf
 _research_project/data/all_muni/all_muni.prj
 _research_project/data/all_muni/all_muni.shp
 _research_project/data/all_muni/all_muni.shx
+_research_project/.RData
