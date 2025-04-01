@@ -43,89 +43,6 @@ sample_muni <-
 
 # --
 
-rj_muni_grid <-
-  rj_muni %>%
-  st_make_grid(., cellsize = 0.01) %>%
-  st_sf()
-
-rj_centroids <-
-  rj_muni_grid %>%
-  st_centroid
-
-# -
-
-all_muni_grid <-
-  all_muni %>%
-  st_make_grid(., cellsize = 0.1) %>%
-  st_sf()
-
-all_muni_centroids <-
-  all_muni_grid %>%
-  st_centroid
-
-lapply(all_muni, function(x){
-  x %>%
-  st_make_grid(., cellsize = 0.1) %>%
-  st_sf() %>%
-  st_centroid
-})
-
-# -----
-
-# Function to compute the disconnection index for a given polygon
-compute_disconnection_index <- function(polygon, n_points, n_samples) {
-  
-  indices <- 
-    
-    purrr::map_dbl(1:n_samples, ~{
-    # Sample n random points inside the polygon
-    points <- st_sample(polygon, n, type = "random")
-    
-    # Compute pairwise Euclidean distances
-    distance_matrix <- st_distance(points)
-    
-    # Compute disconnection index
-    sum(distance_matrix) / (n_points * (n_points - 1))
-    
-  })
-  
-  return(mean(indices))  # Return the mean across the 30 samples
-}
-
-
-# Set parameters
-n <- 100  # Number of random points per sample
-s <- 10  # Number of samples per city
-
-# ------
-
-start.time <- Sys.time()
-#
-rio_muni_results <- # Apply the function to all cities
-  rj_muni %>%
-  rowwise() %>%
-  mutate(disconnection_index = compute_disconnection_index(.$geom, n, s))
-#
-end.time <- Sys.time()
-time.taken <- end.time - start.time
-time.taken
-
-normalized_indices <-
-  data.frame(geom=rio_muni_results$geom,
-           norm=as.numeric(rio_muni_results$disconnection_index / 
-                             (sqrt(st_area(rio_muni_results$geom) / 
-                                     pi))
-                           )
-           ) %>%
-  st_as_sf()
-
-ggplot() +
-  geom_sf(data = normalized_indices,
-          aes(fill = norm)) +
-  scale_fill_gradient(low='navy', high='magenta')
-
-# ---
-
 rio_campos_muni <-
   rj_muni %>%
   filter(name_muni == 'RIO DE JANEIRO' | name_muni == 'CAMPOS DOS GOYTACAZES')
@@ -133,7 +50,7 @@ rio_campos_muni <-
 
 get_across_samples_disconnection <-
   
-  function(muni_sf=rio_campos_muni, n_samples=3, n_points=5){
+  function(muni_sf, n_samples=3, n_points=5){
     
     samples <-
       
@@ -192,12 +109,24 @@ get_across_samples_disconnection <-
 # [2,] 13726.74 25672.59 20718.73
 
 
-rj_muni_norm <-
-  rj_muni %>%
+start.time <- Sys.time()
+#
+all_muni_s10p100 <-
+  all_muni %>%
   mutate(index = 
-           get_across_samples_disconnection(muni_sf = .)) %>%
+           get_across_samples_disconnection(muni_sf = .,
+                                            n_samples = 10,
+                                            n_points= 100)) %>%
   mutate(area = as.numeric(st_area(geom))) %>%
   mutate(index_norm = index / sqrt(area/pi) )
+#
+end.time <- Sys.time()
+time.taken <- end.time - start.time
+time.taken
+
+saveRDS(all_muni_s10p100, here::here('out', 'all_muni_s10p100.Rds'))
+
+# --
 
 ggplot() +
   geom_sf(data = rj_muni_norm, aes(fill = index)) +

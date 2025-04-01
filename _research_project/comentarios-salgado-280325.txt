@@ -23,27 +23,22 @@ factions wont use public transit, but it makes a place richer
 
 expansions in transit and faction activity 
 
-consider factions are constrained by police force eeg in copacabana
+consider factions are constrained by police force eg in copacabana
 
-terrain helps them technologically > advantage of elevation for factions
+terrain helps them technologically -> advantage of elevation for factions
 
-reduced-form to start: what happends with transit expansion?
+reduced-form to start: what happens with transit expansion?
 new train line -> more factions? rents go up ok
 
 less or more likely to have any group at all? more than one?
 
-
 new bus lines too
-
-
 
 subway -> more, less contested?
 
-richer -> fations exert more effort, but less benefit to existing at all(ffrbrlopmrny rggrvy)
-
+richer -> fations exert more effort, but less benefit to being in a faction
 
 republica das milicias (book, pordcast) 
-
 
 try QGIS
 
